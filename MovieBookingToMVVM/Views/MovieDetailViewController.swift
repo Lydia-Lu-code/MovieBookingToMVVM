@@ -321,7 +321,8 @@ class MovieDetailViewController: UIViewController {
 
     // 在原始 MovieDetailViewController.swift 中
     @objc internal func showTimesButtonTapped() {  // 改為 internal
-        let testVC = SeatLayoutViewController()
+//        let testVC = SeatLayoutViewController()
+        let testVC = ShowtimeSelectionViewController()
         navigationController?.pushViewController(testVC, animated: true)
     }
     

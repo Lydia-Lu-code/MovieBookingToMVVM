@@ -98,3 +98,13 @@ struct SeatLayout {
 }
 
 
+struct ShowtimeModel {
+    let period: String
+    let time: String
+    let isAvailable: Bool
+}
+
+struct ShowtimeDateModel {
+    let date: Date
+    let showtimes: [ShowtimeModel]
+}

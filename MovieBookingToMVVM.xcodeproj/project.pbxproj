@@ -22,6 +22,9 @@
 		5C6EC11D2D112BEE00E7D767 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC11C2D112BEE00E7D767 /* NetworkError.swift */; };
 		5C6EC1222D116B2600E7D767 /* SeatLayoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */; };
 		5C6EC1282D12A27200E7D767 /* SeatLayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */; };
+		5C6EC12A2D12C65500E7D767 /* ShowtimeSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1292D12C65500E7D767 /* ShowtimeSelectionViewModel.swift */; };
+		5C6EC12C2D12C67600E7D767 /* ShowtimeSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC12B2D12C67600E7D767 /* ShowtimeSelectionViewController.swift */; };
+		5C6EC12E2D12C6AD00E7D767 /* ShowtimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC12D2D12C6AD00E7D767 /* ShowtimeCell.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,6 +45,9 @@
 		5C6EC11C2D112BEE00E7D767 /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeatLayoutViewController.swift; sourceTree = "<group>"; };
 		5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeatLayoutViewModel.swift; sourceTree = "<group>"; };
+		5C6EC1292D12C65500E7D767 /* ShowtimeSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowtimeSelectionViewModel.swift; sourceTree = "<group>"; };
+		5C6EC12B2D12C67600E7D767 /* ShowtimeSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowtimeSelectionViewController.swift; sourceTree = "<group>"; };
+		5C6EC12D2D12C6AD00E7D767 /* ShowtimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowtimeCell.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,7 +101,10 @@
 			children = (
 				5C6EC0FE2D0C319F00E7D767 /* MovieListViewController.swift */,
 				5C6EC11A2D0C340100E7D767 /* MovieDetailViewController.swift */,
+				5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */,
+				5C6EC12B2D12C67600E7D767 /* ShowtimeSelectionViewController.swift */,
 				5C6EC1142D0C32F200E7D767 /* MovieCell.swift */,
+				5C6EC12D2D12C6AD00E7D767 /* ShowtimeCell.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -106,6 +115,7 @@
 				5C6EC1122D0C323700E7D767 /* MovieListViewModel.swift */,
 				5C6EC1172D0C333F00E7D767 /* MovieDetailViewModel.swift */,
 				5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */,
+				5C6EC1292D12C65500E7D767 /* ShowtimeSelectionViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -113,7 +123,6 @@
 		5C6EC11E2D116AF700E7D767 /* test */ = {
 			isa = PBXGroup;
 			children = (
-				5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */,
 			);
 			path = test;
 			sourceTree = "<group>";
@@ -190,6 +199,8 @@
 			buildActionMask = 2147483647;
 			files = (
 				5C6EC1152D0C32F200E7D767 /* MovieCell.swift in Sources */,
+				5C6EC12C2D12C67600E7D767 /* ShowtimeSelectionViewController.swift in Sources */,
+				5C6EC12A2D12C65500E7D767 /* ShowtimeSelectionViewModel.swift in Sources */,
 				5C6EC1132D0C323700E7D767 /* MovieListViewModel.swift in Sources */,
 				5C6EC0FF2D0C319F00E7D767 /* MovieListViewController.swift in Sources */,
 				5C6EC0FB2D0C319F00E7D767 /* AppDelegate.swift in Sources */,
@@ -201,6 +212,7 @@
 				5C6EC10F2D0C31DD00E7D767 /* Models.swift in Sources */,
 				5C6EC11D2D112BEE00E7D767 /* NetworkError.swift in Sources */,
 				5C6EC1282D12A27200E7D767 /* SeatLayoutViewModel.swift in Sources */,
+				5C6EC12E2D12C6AD00E7D767 /* ShowtimeCell.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
