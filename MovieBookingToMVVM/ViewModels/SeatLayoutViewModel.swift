@@ -9,53 +9,68 @@ import Foundation
 
 class SeatLayoutViewModel {
     // MARK: - Properties
-    let numberOfRows = 8  // 改為 internal (默認)
-    let seatsPerRow = 10  // 改為 internal (默認)
-    private let ticketPrice = 280
+    private let configuration: SeatLayoutConfiguration
     private var seats: [[SeatLayout]] = []
     
-//    // MARK: - Properties
-//    private let numberOfRows = 8
-//    private let seatsPerRow = 10
-//    private let ticketPrice = 280
-//    private var seats: [[SeatLayout]] = []
-    
-    // MARK: - Outputs
+    // MARK: - Published Properties
     var selectedSeats: [SeatLayout] = [] {
         didSet {
             updateSelectedSeatsInfo?()
         }
     }
     
+    // MARK: - Public Properties
+    var numberOfRows: Int { configuration.numberOfRows }
+    var seatsPerRow: Int { configuration.seatsPerRow }
+    
     // MARK: - Callbacks
     var updateSelectedSeatsInfo: (() -> Void)?
     var updateSeatStatus: ((Int, Int, SeatLayoutStatus) -> Void)?
     
+    // MARK: - Initialization
+    init(configuration: SeatLayoutConfiguration = .standard) {
+        self.configuration = configuration
+    }
+    
     // MARK: - Public Methods
     func initialize() {
+        createInitialSeats()
+    }
+    
+    func toggleSeat(at row: Int, column: Int) {
+        guard isValidSeatPosition(row: row, column: column) else { return }
+        
+        var seat = seats[row][column]
+        guard seat.status != .occupied else { return }
+        
+        updateSeatStatus(seat: &seat, at: row, column: column)
+    }
+    
+    func getDisplayInfo() -> SeatDisplayInfo {
+        return SeatDisplayInfo(
+            seatsText: getSelectedSeatsText(),
+            totalPriceText: getTotalPriceText()
+        )
+    }
+    
+    // MARK: - Private Methods
+    private func createInitialSeats() {
         seats = (0..<numberOfRows).map { row in
             (0..<seatsPerRow).map { column in
-                let isOccupied = Double.random(in: 0...1) < 0.6
-                return SeatLayout(row: row,
-                          column: column,
-                          status: isOccupied ? .occupied : .available)
+                let isAvailable = Double.random(in: 0...1) < 0.6  // 60% 機率是可選的（淺灰色）
+                return SeatLayout(
+                    row: row,
+                    column: column,
+                    status: isAvailable ? .occupied : .available  // 改變這裡的邏輯
+                )
             }
         }
     }
     
-    func getSeat(at row: Int, column: Int) -> SeatLayout? {
-        guard row < seats.count, column < seats[row].count else { return nil }
-        return seats[row][column]
-    }
     
-    func toggleSeat(at row: Int, column: Int) {
-        guard row < seats.count, column < seats[row].count else { return }
-        
-        var seat = seats[row][column]
-        if seat.status == .occupied { return }
-        
+    private func updateSeatStatus(seat: inout SeatLayout, at row: Int, column: Int) {
         if seat.status == .selected {
-            seat.status = .available
+            seat.status = .occupied    // 取消選擇時恢復為淺灰色（可選狀態）
             selectedSeats.removeAll { $0.row == row && $0.column == column }
         } else {
             seat.status = .selected
@@ -66,7 +81,13 @@ class SeatLayoutViewModel {
         updateSeatStatus?(row, column, seat.status)
     }
     
-    func getSelectedSeatsText() -> String {
+    
+    private func isValidSeatPosition(row: Int, column: Int) -> Bool {
+        row < seats.count && column < seats[row].count
+    }
+
+    
+    private func getSelectedSeatsText() -> String {
         if selectedSeats.isEmpty {
             return "已選座位：尚未選擇"
         }
@@ -74,7 +95,8 @@ class SeatLayoutViewModel {
         return "已選座位：" + sortedSeats.map { $0.displayName }.joined(separator: "、")
     }
     
-    func getTotalPriceText() -> String {
-        return "總金額：$\(selectedSeats.count * ticketPrice)"
+    private func getTotalPriceText() -> String {
+        return "總金額：$\(selectedSeats.count * configuration.ticketPrice)"
     }
 }
+
