@@ -101,8 +101,8 @@
 			children = (
 				5C6EC0FE2D0C319F00E7D767 /* MovieListViewController.swift */,
 				5C6EC11A2D0C340100E7D767 /* MovieDetailViewController.swift */,
-				5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */,
 				5C6EC12B2D12C67600E7D767 /* ShowtimeSelectionViewController.swift */,
+				5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */,
 				5C6EC1142D0C32F200E7D767 /* MovieCell.swift */,
 				5C6EC12D2D12C6AD00E7D767 /* ShowtimeCell.swift */,
 			);
@@ -114,8 +114,8 @@
 			children = (
 				5C6EC1122D0C323700E7D767 /* MovieListViewModel.swift */,
 				5C6EC1172D0C333F00E7D767 /* MovieDetailViewModel.swift */,
-				5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */,
 				5C6EC1292D12C65500E7D767 /* ShowtimeSelectionViewModel.swift */,
+				5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";

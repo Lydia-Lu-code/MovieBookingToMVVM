@@ -150,21 +150,6 @@ class ShowtimeSelectionViewController: UIViewController {
         present(alert, animated: true)
     }
 
-//   private func setupBindings() {
-//       viewModel.updateShowtimes = { [weak self] showtimes in
-//           self?.showtimeCollectionView.reloadData()
-//       }
-//       
-//       viewModel.updateSelectSeatButtonState = { [weak self] isEnabled in
-//           self?.selectSeatButton.isEnabled = isEnabled
-//       }
-//   }
-//   
-//   // MARK: - Actions
-//   @objc private func selectSeatButtonTapped() {
-//       let seatVC = SeatLayoutViewController()
-//       navigationController?.pushViewController(seatVC, animated: true)
-//   }
 }
 
 // MARK: - UICalendarViewDelegate

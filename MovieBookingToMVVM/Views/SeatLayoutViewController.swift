@@ -82,12 +82,146 @@ class SeatLayoutViewController: UIViewController {
         return stackView
     }()
     
+    private lazy var ticketTypeSegment: UISegmentedControl = {
+        let segment = UISegmentedControl(items: ["一般票", "套餐票"])
+        segment.translatesAutoresizingMaskIntoConstraints = false
+        segment.selectedSegmentIndex = 0
+        segment.addTarget(self, action: #selector(ticketTypeChanged(_:)), for: .valueChanged)
+        return segment
+    }()
+    
+    private lazy var checkoutButton: UIButton = {
+        let button = UIButton(type: .system)
+        button.translatesAutoresizingMaskIntoConstraints = false
+        button.backgroundColor = .systemBlue
+        button.setTitleColor(.white, for: .normal)
+        button.titleLabel?.font = .systemFont(ofSize: 18, weight: .bold)
+        button.layer.cornerRadius = 8
+        button.setTitle("去結帳", for: .normal)
+        button.addTarget(self, action: #selector(checkoutButtonTapped), for: .touchUpInside)
+        return button
+    }()
+    
+    // MARK: - Properties
+    private let viewModel: SeatLayoutViewModel
+    
+    // MARK: - Initialization
+    init(viewModel: SeatLayoutViewModel = SeatLayoutViewModel()) {
+        self.viewModel = viewModel
+        super.init(nibName: nil, bundle: nil)
+    }
+    
+    required init?(coder: NSCoder) {
+        self.viewModel = SeatLayoutViewModel()
+        super.init(coder: coder)
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         setupLayout()
         createSeatingLayout()
         setupInfoSection()
+        setupTicketControls()
+        setupBindings()
+        
+        viewModel.initialize()
     }
+    
+    @objc private func seatTapped(_ sender: UIButton) {
+        if selectedButtons.contains(sender) {
+            selectedButtons.remove(sender)
+            sender.backgroundColor = .systemGray5
+        } else {
+            selectedButtons.insert(sender)
+            sender.backgroundColor = .systemGreen
+        }
+        
+        let row = sender.tag / seatsPerRow
+        let column = sender.tag % seatsPerRow
+        viewModel.toggleSeat(at: row, column: column)
+        
+        updateSelectionInfo()
+    }
+
+    private func updateSelectionInfo() {
+        let sortedSeats = selectedButtons.sorted { $0.tag < $1.tag }
+        let seatLabels = sortedSeats.map { button -> String in
+            let row = button.tag / seatsPerRow
+            let seat = button.tag % seatsPerRow + 1
+            let rowLabel = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(row))!)
+            return "\(rowLabel)\(seat)"
+        }
+        
+        let greenButtonsCount = selectedButtons.filter { $0.backgroundColor == .systemGreen }.count
+        
+        let currentTicketPrice = (ticketTypeSegment.selectedSegmentIndex == 0) ? 280 : 400
+        
+        if seatLabels.isEmpty {
+            selectedSeatsLabel.text = "已選座位：尚未選擇"
+            totalPriceLabel.text = "總金額：$0"
+        } else {
+            selectedSeatsLabel.text = "已選座位：" + seatLabels.joined(separator: "、")
+            
+            let totalPrice = greenButtonsCount * currentTicketPrice
+            totalPriceLabel.text = "總金額：$\(totalPrice)"
+        }
+    }
+    
+    private func updateSeatsInfo() {
+        selectedSeatsLabel.text = viewModel.getSelectedSeatsText()
+    }
+    
+    private func updateTotalPriceDisplay() {
+        totalPriceLabel.text = viewModel.getTotalPrice()
+    }
+
+
+
+    // 在 setupBindings 中
+    private func setupBindings() {
+        viewModel.updateSelectedSeatsInfo = { [weak self] in
+            self?.updateSeatsInfo()
+        }
+        
+        viewModel.updateTotalPrice = { [weak self] in
+            self?.updateTotalPriceDisplay()
+        }
+    }
+    
+    
+    @objc private func ticketTypeChanged(_ sender: UISegmentedControl) {
+        viewModel.toggleTicketType()
+        
+        // 手動觸發更新金額顯示
+        updateSelectionInfo()
+    }
+    
+    private func setupTicketControls() {
+        // 移除 ticketCountControl，只保留 ticketTypeSegment
+        view.addSubview(ticketTypeSegment)
+        view.addSubview(checkoutButton)
+        
+        // 預設選擇一般票
+        ticketTypeSegment.selectedSegmentIndex = 0
+        
+        NSLayoutConstraint.activate([
+            ticketTypeSegment.topAnchor.constraint(equalTo: infoStackView.bottomAnchor, constant: 20),
+            ticketTypeSegment.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            ticketTypeSegment.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            
+            checkoutButton.heightAnchor.constraint(equalToConstant: 50),
+            checkoutButton.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+            checkoutButton.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+            checkoutButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
+        ])
+    }
+   
+    
+    @objc private func checkoutButtonTapped() {
+        // 這裡添加結帳邏輯
+    }
+    
+
     
     private func setupInfoSection() {
         view.addSubview(infoStackView)
@@ -101,39 +235,6 @@ class SeatLayoutViewController: UIViewController {
         ])
     }
     
-    private func updateSelectionInfo() {
-        let sortedSeats = selectedButtons.sorted { $0.tag < $1.tag }
-        let seatLabels = sortedSeats.map { button -> String in
-            let row = button.tag / seatsPerRow
-            let seat = button.tag % seatsPerRow + 1
-            let rowLabel = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(row))!)
-            return "\(rowLabel)\(seat)"
-        }
-        
-        // 更新已選座位顯示
-        if seatLabels.isEmpty {
-            selectedSeatsLabel.text = "已選座位：尚未選擇"
-        } else {
-            selectedSeatsLabel.text = "已選座位：" + seatLabels.joined(separator: "、")
-        }
-        
-        // 更新總金額
-        let totalPrice = selectedButtons.count * ticketPrice
-        totalPriceLabel.text = "總金額：$\(totalPrice)"
-    }
-    
-    @objc private func seatTapped(_ sender: UIButton) {
-        if selectedButtons.contains(sender) {
-            selectedButtons.remove(sender)
-            sender.backgroundColor = .systemGray5
-        } else {
-            selectedButtons.insert(sender)
-            sender.backgroundColor = .systemGreen
-        }
-        
-        // 更新選擇資訊
-        updateSelectionInfo()
-    }
     
     private func createSeatingLayout() {
        // 1. 創建座位按鈕
