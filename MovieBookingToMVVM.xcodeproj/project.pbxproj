@@ -19,12 +19,13 @@
 		5C6EC1152D0C32F200E7D767 /* MovieCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1142D0C32F200E7D767 /* MovieCell.swift */; };
 		5C6EC1182D0C333F00E7D767 /* MovieDetailViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1172D0C333F00E7D767 /* MovieDetailViewModel.swift */; };
 		5C6EC11B2D0C340100E7D767 /* MovieDetailViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC11A2D0C340100E7D767 /* MovieDetailViewController.swift */; };
-		5C6EC11D2D112BEE00E7D767 /* NetworkError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC11C2D112BEE00E7D767 /* NetworkError.swift */; };
 		5C6EC1222D116B2600E7D767 /* SeatLayoutViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */; };
 		5C6EC1282D12A27200E7D767 /* SeatLayoutViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */; };
 		5C6EC12A2D12C65500E7D767 /* ShowtimeSelectionViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1292D12C65500E7D767 /* ShowtimeSelectionViewModel.swift */; };
 		5C6EC12C2D12C67600E7D767 /* ShowtimeSelectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC12B2D12C67600E7D767 /* ShowtimeSelectionViewController.swift */; };
 		5C6EC12E2D12C6AD00E7D767 /* ShowtimeCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC12D2D12C6AD00E7D767 /* ShowtimeCell.swift */; };
+		5C6EC1322D14244500E7D767 /* GoogleDriveViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1312D14244500E7D767 /* GoogleDriveViewModel.swift */; };
+		5C6EC1342D19237C00E7D767 /* AlertHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 5C6EC1332D19237C00E7D767 /* AlertHelper.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -42,12 +43,13 @@
 		5C6EC1142D0C32F200E7D767 /* MovieCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCell.swift; sourceTree = "<group>"; };
 		5C6EC1172D0C333F00E7D767 /* MovieDetailViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailViewModel.swift; sourceTree = "<group>"; };
 		5C6EC11A2D0C340100E7D767 /* MovieDetailViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieDetailViewController.swift; sourceTree = "<group>"; };
-		5C6EC11C2D112BEE00E7D767 /* NetworkError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NetworkError.swift; sourceTree = "<group>"; };
 		5C6EC1212D116B2600E7D767 /* SeatLayoutViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeatLayoutViewController.swift; sourceTree = "<group>"; };
 		5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SeatLayoutViewModel.swift; sourceTree = "<group>"; };
 		5C6EC1292D12C65500E7D767 /* ShowtimeSelectionViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowtimeSelectionViewModel.swift; sourceTree = "<group>"; };
 		5C6EC12B2D12C67600E7D767 /* ShowtimeSelectionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowtimeSelectionViewController.swift; sourceTree = "<group>"; };
 		5C6EC12D2D12C6AD00E7D767 /* ShowtimeCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ShowtimeCell.swift; sourceTree = "<group>"; };
+		5C6EC1312D14244500E7D767 /* GoogleDriveViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GoogleDriveViewModel.swift; sourceTree = "<group>"; };
+		5C6EC1332D19237C00E7D767 /* AlertHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlertHelper.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -83,7 +85,7 @@
 				5C6EC0FA2D0C319F00E7D767 /* AppDelegate.swift */,
 				5C6EC0FC2D0C319F00E7D767 /* SceneDelegate.swift */,
 				5C6EC1102D0C320C00E7D767 /* NetworkLayer.swift */,
-				5C6EC11C2D112BEE00E7D767 /* NetworkError.swift */,
+				5C6EC1332D19237C00E7D767 /* AlertHelper.swift */,
 				5C6EC10E2D0C31DD00E7D767 /* Models.swift */,
 				5C6EC11E2D116AF700E7D767 /* test */,
 				5C6EC1162D0C331100E7D767 /* Views */,
@@ -116,6 +118,7 @@
 				5C6EC1172D0C333F00E7D767 /* MovieDetailViewModel.swift */,
 				5C6EC1292D12C65500E7D767 /* ShowtimeSelectionViewModel.swift */,
 				5C6EC1272D12A27200E7D767 /* SeatLayoutViewModel.swift */,
+				5C6EC1312D14244500E7D767 /* GoogleDriveViewModel.swift */,
 			);
 			path = ViewModels;
 			sourceTree = "<group>";
@@ -206,11 +209,12 @@
 				5C6EC0FB2D0C319F00E7D767 /* AppDelegate.swift in Sources */,
 				5C6EC1182D0C333F00E7D767 /* MovieDetailViewModel.swift in Sources */,
 				5C6EC1222D116B2600E7D767 /* SeatLayoutViewController.swift in Sources */,
+				5C6EC1322D14244500E7D767 /* GoogleDriveViewModel.swift in Sources */,
 				5C6EC0FD2D0C319F00E7D767 /* SceneDelegate.swift in Sources */,
 				5C6EC1112D0C320C00E7D767 /* NetworkLayer.swift in Sources */,
 				5C6EC11B2D0C340100E7D767 /* MovieDetailViewController.swift in Sources */,
+				5C6EC1342D19237C00E7D767 /* AlertHelper.swift in Sources */,
 				5C6EC10F2D0C31DD00E7D767 /* Models.swift in Sources */,
-				5C6EC11D2D112BEE00E7D767 /* NetworkError.swift in Sources */,
 				5C6EC1282D12A27200E7D767 /* SeatLayoutViewModel.swift in Sources */,
 				5C6EC12E2D12C6AD00E7D767 /* ShowtimeCell.swift in Sources */,
 			);

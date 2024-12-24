@@ -6,7 +6,9 @@
 //
 
 import Foundation
+import UIKit
 
+// 票種枚舉
 enum TicketType {
     case regular
     case package
@@ -19,16 +21,46 @@ enum TicketType {
     }
 }
 
-class SeatLayoutViewModel {
-    private let configuration: SeatLayoutConfiguration
+// ViewModel 協議
+protocol SeatLayoutViewModelProtocol {
+    var selectedSeats: [SeatLayout] { get }
+    var ticketType: TicketType { get }
+    
+    var updateSelectedSeatsInfo: (() -> Void)? { get set }
+    var updateTotalPrice: (() -> Void)? { get set }
+    
+    func initialize()
+    func toggleSeat(at row: Int, column: Int)
+    func toggleTicketType()
+    func getSelectedSeats() -> [SeatLayout]
+    func getSelectedSeatsText() -> String
+    func getTotalPrice() -> String
+    func getTicketTypeText() -> String
+    func clearSelectedSeats()
+}
+
+// 座位版面配置協議
+protocol SeatLayoutConfigurationProtocol {
+    var numberOfRows: Int { get }
+    var seatsPerRow: Int { get }
+    var ticketPrice: Int { get }
+}
+
+class SeatLayoutViewModel: SeatLayoutViewModelProtocol {
+    // 配置
+    private let configuration: SeatLayoutConfigurationProtocol
+    
+    // 座位二維陣列
     private var seats: [[SeatLayout]] = []
     
+    // 票種
     private(set) var ticketType: TicketType = .regular {
         didSet {
             updateTotalPrice?()
         }
     }
     
+    // 已選座位
     var selectedSeats: [SeatLayout] = [] {
         didSet {
             updateSelectedSeatsInfo?()
@@ -36,33 +68,38 @@ class SeatLayoutViewModel {
         }
     }
     
+    
+    
+    // 狀態更新閉包
     var updateTotalPrice: (() -> Void)?
     var updateSelectedSeatsInfo: (() -> Void)?
     var updateSeatStatus: ((Int, Int, SeatLayoutStatus) -> Void)?
     
-    func getSeatStatus(at row: Int, column: Int) -> SeatLayoutStatus {
-        guard isValidSeatPosition(row: row, column: column) else {
-            return .occupied
+    // 初始化
+    init(configuration: SeatLayoutConfigurationProtocol = SeatLayoutConfiguration.standard) {
+        self.configuration = configuration
+    }
+    
+    // 初始化座位
+    func initialize() {
+        createInitialSeats()
+    }
+    
+    // 建立初始座位
+    private func createInitialSeats() {
+        seats = (0..<configuration.numberOfRows).map { row in
+            (0..<configuration.seatsPerRow).map { column in
+                let isOccupied = Double.random(in: 0...1) < 0.6
+                return SeatLayout(
+                    row: row,
+                    column: column,
+                    status: isOccupied ? .occupied : .available
+                )
+            }
         }
-        return seats[row][column].status
     }
     
-    func canSelectSeat(at row: Int, column: Int) -> Bool {
-        guard isValidSeatPosition(row: row, column: column) else { return false }
-        return seats[row][column].status == .available
-    }
-    
-    func toggleTicketType() {
-        ticketType = ticketType == .regular ? .package : .regular
-        updateTotalPrice?()
-    }
-    
-    func getTotalPrice() -> String {
-        let currentPrice = ticketType.price
-        let total = selectedSeats.count * currentPrice
-        return "總金額：$\(total)"
-    }
-    
+    // 座位選擇
     func toggleSeat(at row: Int, column: Int) {
         guard isValidSeatPosition(row: row, column: column) else { return }
         
@@ -83,6 +120,18 @@ class SeatLayoutViewModel {
         updateSeatStatus?(row, column, seat.status)
     }
     
+    // 切換票種
+    func toggleTicketType() {
+        ticketType = ticketType == .regular ? .package : .regular
+        updateTotalPrice?()
+    }
+    
+    // 取得已選座位
+    func getSelectedSeats() -> [SeatLayout] {
+        return selectedSeats
+    }
+    
+    // 取得已選座位文字
     func getSelectedSeatsText() -> String {
         if selectedSeats.isEmpty {
             return "已選座位：尚未選擇"
@@ -91,6 +140,14 @@ class SeatLayoutViewModel {
         return "已選座位：" + sortedSeats.map { $0.displayName }.joined(separator: "、")
     }
     
+    // 取得總金額
+    func getTotalPrice() -> String {
+        let currentPrice = ticketType.price
+        let total = selectedSeats.count * currentPrice
+        return "總金額：$\(total)"
+    }
+    
+    // 取得票種文字
     func getTicketTypeText() -> String {
         switch ticketType {
         case .regular: return "一般票"
@@ -98,35 +155,16 @@ class SeatLayoutViewModel {
         }
     }
     
-    var numberOfRows: Int { configuration.numberOfRows }
-    var seatsPerRow: Int { configuration.seatsPerRow }
-    
-    var selectedSeatsCount: Int {
-        return selectedSeats.count
+    // 清除已選座位
+    func clearSelectedSeats() {
+        selectedSeats.removeAll()
+        updateSelectedSeatsInfo?()
+        updateTotalPrice?()
     }
     
-    init(configuration: SeatLayoutConfiguration = .standard) {
-        self.configuration = configuration
-    }
-    
-    func initialize() {
-        createInitialSeats()
-    }
-    
-    private func createInitialSeats() {
-        seats = (0..<numberOfRows).map { row in
-            (0..<seatsPerRow).map { column in
-                let isOccupied = Double.random(in: 0...1) < 0.6
-                return SeatLayout(
-                    row: row,
-                    column: column,
-                    status: isOccupied ? .occupied : .available
-                )
-            }
-        }
-    }
-    
+    // 驗證座位位置
     private func isValidSeatPosition(row: Int, column: Int) -> Bool {
         row < seats.count && column < seats[row].count
     }
 }
+

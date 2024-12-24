@@ -40,8 +40,7 @@ class ShowtimeSelectionViewModel {
     func selectDate(_ date: Date) {
         selectedDate = date
         selectedShowtime = nil
-//        updateSelectSeatButtonState?(false)
-        
+
         // 在實際應用中，這裡可能需要從API獲取該日期的場次
         showtimes = createShowtimes(for: date)
         updateShowtimes?(showtimes)

@@ -8,14 +8,18 @@
 import UIKit
 
 class SeatLayoutViewController: UIViewController {
+    // 基本屬性
     private var selectedButtons: Set<UIButton> = []
     private let numberOfRows = 8
     private let seatsPerRow = 10
     private let labelSize: CGFloat = 30
+    private let ticketPrice: Int = 280
     
-    private let ticketPrice: Int = 280  // 每張票價格
+    // ViewModel 與 GoogleDriveViewModel
+    private var viewModel: SeatLayoutViewModelProtocol
+    private let googleDriveViewModel: GoogleDriveViewModel
     
-    // 新增的UI元件
+    // UI 元件
     private lazy var selectedSeatsLabel: UILabel = {
         let label = UILabel()
         label.translatesAutoresizingMaskIntoConstraints = false
@@ -54,7 +58,6 @@ class SeatLayoutViewController: UIViewController {
         let stackView = UIStackView()
         stackView.axis = .vertical
         stackView.spacing = 5
-        //        stackView.distribution = .fillEqually
         stackView.distribution = .fill
         return stackView
     }()
@@ -102,17 +105,19 @@ class SeatLayoutViewController: UIViewController {
         return button
     }()
     
-    // MARK: - Properties
-    private let viewModel: SeatLayoutViewModel
-    
-    // MARK: - Initialization
-    init(viewModel: SeatLayoutViewModel = SeatLayoutViewModel()) {
+    // 初始化方法
+    init(
+        viewModel: SeatLayoutViewModelProtocol = SeatLayoutViewModel(),
+        googleDriveViewModel: GoogleDriveViewModel = GoogleDriveViewModel()
+    ) {
         self.viewModel = viewModel
+        self.googleDriveViewModel = googleDriveViewModel
         super.init(nibName: nil, bundle: nil)
     }
     
     required init?(coder: NSCoder) {
         self.viewModel = SeatLayoutViewModel()
+        self.googleDriveViewModel = GoogleDriveViewModel()
         super.init(coder: coder)
     }
     
@@ -125,8 +130,111 @@ class SeatLayoutViewController: UIViewController {
         setupBindings()
         
         viewModel.initialize()
+        setupGoogleDriveStatusObserver()
     }
     
+    // 設定 Google Drive 狀態監聽
+    private func setupGoogleDriveStatusObserver() {
+        googleDriveViewModel.uploadStatusHandler = { [weak self] status in
+            guard let self = self else { return }
+            
+            switch status {
+            case .uploading:
+                self.showLoadingIndicator()
+            case .success:
+                self.showSuccessAlert()
+                self.resetSeatSelection()
+            case .failed(let error):
+                self.showErrorAlert(error)
+            case .idle:
+                break
+            }
+        }
+    }
+    
+    // 結帳按鈕點擊事件
+    @objc private func checkoutButtonTapped() {
+        guard !viewModel.selectedSeats.isEmpty else {
+            AlertHelper.showAlert(in: self, message: "請先選擇座位")
+            return
+        }
+        
+        let bookingData = prepareBookingData()
+        
+        googleDriveViewModel.uploadBookingData(bookingData: bookingData) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success:
+                AlertHelper.showAlert(
+                    in: self,
+                    title: "訂票成功",
+                    message: "您的訂票已成功儲存"
+                )
+            case .failure(let error):
+                AlertHelper.showAlert(
+                    in: self,
+                    title: "訂票失敗",
+                    message: error.localizedDescription
+                )
+            }
+        }
+    }
+    
+    // 準備訂單資料
+    private func prepareBookingData() -> BookingData {
+        let selectedSeats = viewModel.getSelectedSeats()
+        let seatLabels = selectedSeats.map { seat in
+            let rowLabel = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(seat.row))!)
+            return "\(rowLabel)\(seat.column + 1)"
+        }
+        
+        return BookingData(
+            movieName: "預設電影名稱",
+            showDate: Date(),
+            showTime: "場次時間",
+            peopleCount: selectedSeats.count,
+            ticketType: viewModel.getTicketTypeText(),
+            notes: seatLabels.joined(separator: "、")
+        )
+    }
+    
+    // 重置座位選擇
+    private func resetSeatSelection() {
+        for button in selectedButtons {
+            button.backgroundColor = .systemGray5
+        }
+        selectedButtons.removeAll()
+        viewModel.clearSelectedSeats()
+    }
+    
+    // 顯示載入指示器
+    private func showLoadingIndicator() {
+        let loadingView = UIActivityIndicatorView(style: .large)
+        loadingView.startAnimating()
+        view.addSubview(loadingView)
+        loadingView.center = view.center
+    }
+    
+    // 顯示成功訊息
+    private func showSuccessAlert() {
+        AlertHelper.showAlert(
+            in: self,
+            title: "訂票成功",
+            message: "您的訂票已成功儲存"
+        )
+    }
+    
+    // 顯示錯誤訊息
+    private func showErrorAlert(_ error: Error) {
+        AlertHelper.showAlert(
+            in: self,
+            title: "訂票失敗",
+            message: error.localizedDescription
+        )
+    }
+    
+    // 座位點選事件
     @objc private func seatTapped(_ sender: UIButton) {
         if selectedButtons.contains(sender) {
             selectedButtons.remove(sender)
@@ -142,7 +250,8 @@ class SeatLayoutViewController: UIViewController {
         
         updateSelectionInfo()
     }
-
+    
+    // 更新座位選擇資訊
     private func updateSelectionInfo() {
         let sortedSeats = selectedButtons.sorted { $0.tag < $1.tag }
         let seatLabels = sortedSeats.map { button -> String in
@@ -167,17 +276,17 @@ class SeatLayoutViewController: UIViewController {
         }
     }
     
+    // 更新座位資訊
     private func updateSeatsInfo() {
         selectedSeatsLabel.text = viewModel.getSelectedSeatsText()
     }
     
+    // 更新總金額顯示
     private func updateTotalPriceDisplay() {
         totalPriceLabel.text = viewModel.getTotalPrice()
     }
-
-
-
-    // 在 setupBindings 中
+    
+    // 設定綁定
     private func setupBindings() {
         viewModel.updateSelectedSeatsInfo = { [weak self] in
             self?.updateSeatsInfo()
@@ -188,7 +297,7 @@ class SeatLayoutViewController: UIViewController {
         }
     }
     
-    
+    // 票種變更事件
     @objc private func ticketTypeChanged(_ sender: UISegmentedControl) {
         viewModel.toggleTicketType()
         
@@ -196,8 +305,8 @@ class SeatLayoutViewController: UIViewController {
         updateSelectionInfo()
     }
     
+    // 設定票種控制項
     private func setupTicketControls() {
-        // 移除 ticketCountControl，只保留 ticketTypeSegment
         view.addSubview(ticketTypeSegment)
         view.addSubview(checkoutButton)
         
@@ -215,14 +324,8 @@ class SeatLayoutViewController: UIViewController {
             checkoutButton.bottomAnchor.constraint(equalTo: view.safeAreaLayoutGuide.bottomAnchor, constant: -20)
         ])
     }
-   
     
-    @objc private func checkoutButtonTapped() {
-        // 這裡添加結帳邏輯
-    }
-    
-
-    
+    // 設定資訊區段
     private func setupInfoSection() {
         view.addSubview(infoStackView)
         infoStackView.addArrangedSubview(selectedSeatsLabel)
@@ -235,90 +338,92 @@ class SeatLayoutViewController: UIViewController {
         ])
     }
     
-    
+    // 創建座位版面
     private func createSeatingLayout() {
-       // 1. 創建座位按鈕
-       var buttonReferences: [UIButton] = [] // 保存第一列按鈕的引用
-       
-       for row in 0..<numberOfRows {
-           let rowStack = UIStackView()
-           rowStack.axis = .horizontal
-           rowStack.spacing = 5
-           rowStack.distribution = .fillEqually
-           
-           for seat in 0..<seatsPerRow {
-               let button = UIButton()
-               // 隨機決定是否將座位設為已占用（60%的機率）
-               let isOccupied = Double.random(in: 0...1) < 0.6
-               button.backgroundColor = isOccupied ? .systemGray3 : .systemGray5  // 已占用座位用深一點的灰色
-               button.layer.cornerRadius = 5
-               button.tag = row * seatsPerRow + seat
-               button.addTarget(self, action: #selector(seatTapped(_:)), for: .touchUpInside)
-               button.isEnabled = !isOccupied  // 已占用的座位不能點擊
-               rowStack.addArrangedSubview(button)
-               
-               // 保存第一列的按鈕引用
-               if seat == 0 {
-                   buttonReferences.append(button)
-               }
-           }
-           
-           mainStackView.addArrangedSubview(rowStack)
-       }
-       
-       // 2. 創建標籤
-       let cornerLabel = UILabel()
-       cornerLabel.heightAnchor.constraint(equalToConstant: labelSize).isActive = true
-       rowLabelsStack.addArrangedSubview(cornerLabel)
-       
-       // 3. 創建並添加字母標籤
-       var rowLabels: [UILabel] = []
-       for row in 0..<numberOfRows {
-           let label = UILabel()
-           label.text = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(row))!)
-           label.textAlignment = .center
-           label.font = .systemFont(ofSize: 14, weight: .medium)
-           rowLabelsStack.addArrangedSubview(label)
-           rowLabels.append(label)
-       }
-       
-       // 4. 創建數字標籤
-       for column in 0..<seatsPerRow {
-           let label = UILabel()
-           label.text = "\(column + 1)"
-           label.textAlignment = .center
-           label.font = .systemFont(ofSize: 14, weight: .medium)
-           columnLabelsStack.addArrangedSubview(label)
-       }
-       
-       // 等所有視圖都加入層級後，設置高度約束
-       DispatchQueue.main.async {
-           // 確保在主線程中設置約束
-           for (index, label) in rowLabels.enumerated() {
-               if index < buttonReferences.count {
-                   label.heightAnchor.constraint(equalTo: buttonReferences[index].heightAnchor).isActive = true
-               }
-           }
-       }
-    }
-
-    private func setupLayout() {
-        view.backgroundColor = .systemBackground
-        title = "選擇座位"
+        // 1. 創建座位按鈕
+        var buttonReferences: [UIButton] = [] // 保存第一列按鈕的引用
         
-        // 確保先建立視圖層級
-        view.addSubview(containerStackView)
-        containerStackView.addArrangedSubview(rowLabelsStack)
-        containerStackView.addArrangedSubview(mainContentStack)
-        mainContentStack.addArrangedSubview(columnLabelsStack)
-        mainContentStack.addArrangedSubview(mainStackView)
-        
-        NSLayoutConstraint.activate([
-            containerStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
-            containerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
-            containerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+        for row in 0..<numberOfRows {
+            let rowStack = UIStackView()
+            rowStack.axis = .horizontal
+            rowStack.spacing = 5
+            rowStack.distribution = .fillEqually
             
-            rowLabelsStack.widthAnchor.constraint(equalToConstant: labelSize)
-        ])
-    }
-}
+            for seat in 0..<seatsPerRow {
+                let button = UIButton()
+                // 隨機決定是否將座位設為已占用（60%的機率）
+                let isOccupied = Double.random(in: 0...1) < 0.6
+                button.backgroundColor = isOccupied ? .systemGray3 : .systemGray5
+                button.layer.cornerRadius = 5
+                button.tag = row * seatsPerRow + seat
+                button.addTarget(self, action: #selector(seatTapped(_:)), for: .touchUpInside)
+                button.isEnabled = !isOccupied  // 已占用的座位不能點擊
+                rowStack.addArrangedSubview(button)
+                
+                // 保存第一列的按鈕引用
+                if seat == 0 {
+                    buttonReferences.append(button)
+                }
+            }
+            
+            mainStackView.addArrangedSubview(rowStack)
+        }
+        
+        // 2. 創建標籤
+        let cornerLabel = UILabel()
+        cornerLabel.heightAnchor.constraint(equalToConstant: labelSize).isActive = true
+        rowLabelsStack.addArrangedSubview(cornerLabel)
+        
+        // 3. 創建並添加字母標籤
+        var rowLabels: [UILabel] = []
+        for row in 0..<numberOfRows {
+            let label = UILabel()
+            label.text = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(row))!)
+            label.textAlignment = .center
+            label.font = .systemFont(ofSize: 14, weight: .medium)
+            rowLabelsStack.addArrangedSubview(label)
+            rowLabels.append(label)
+        }
+        
+        // 4. 創建數字標籤
+        for column in 0..<seatsPerRow {
+            let label = UILabel()
+            label.text = "\(column + 1)"
+            label.textAlignment = .center
+            label.font = .systemFont(ofSize: 14, weight: .medium)
+            columnLabelsStack.addArrangedSubview(label)
+        }
+        
+        // 等所有視圖都加入層級後，設置高度約束
+        DispatchQueue.main.async {
+                    // 確保在主線程中設置約束
+                    for (index, label) in rowLabels.enumerated() {
+                        if index < buttonReferences.count {
+                            label.heightAnchor.constraint(equalTo: buttonReferences[index].heightAnchor).isActive = true
+                        }
+                    }
+                }
+            }
+            
+            // 設定佈局
+            private func setupLayout() {
+                view.backgroundColor = .systemBackground
+                title = "選擇座位"
+                
+                // 確保先建立視圖層級
+                view.addSubview(containerStackView)
+                containerStackView.addArrangedSubview(rowLabelsStack)
+                containerStackView.addArrangedSubview(mainContentStack)
+                mainContentStack.addArrangedSubview(columnLabelsStack)
+                mainContentStack.addArrangedSubview(mainStackView)
+                
+                NSLayoutConstraint.activate([
+                    containerStackView.topAnchor.constraint(equalTo: view.safeAreaLayoutGuide.topAnchor, constant: 20),
+                    containerStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 20),
+                    containerStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -20),
+                    
+                    rowLabelsStack.widthAnchor.constraint(equalToConstant: labelSize)
+                ])
+            }
+        }
+

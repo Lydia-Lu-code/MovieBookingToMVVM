@@ -55,7 +55,7 @@ struct Booking: Codable {
 }
 
 // MARK: - Seat Layout Models
-struct SeatLayoutConfiguration {
+struct SeatLayoutConfiguration: SeatLayoutConfigurationProtocol {
    let numberOfRows: Int
    let seatsPerRow: Int
    let ticketPrice: Int
@@ -107,4 +107,14 @@ struct ShowtimeModel {
 struct ShowtimeDateModel {
     let date: Date
     let showtimes: [ShowtimeModel]
+}
+
+
+struct BookingData {
+    let movieName: String
+    let showDate: Date
+    let showTime: String
+    let peopleCount: Int
+    let ticketType: String
+    let notes: String
 }
