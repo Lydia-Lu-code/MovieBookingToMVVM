@@ -90,30 +90,51 @@ class MovieListViewController: UIViewController {
     @objc private func refreshData() {
         viewModel.fetchNowPlaying()
     }
+
+    private func configureActivityIndicator() {
+        view.addSubview(activityIndicator)
+        activityIndicator.translatesAutoresizingMaskIntoConstraints = false
+        NSLayoutConstraint.activate([
+            activityIndicator.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+            activityIndicator.centerYAnchor.constraint(equalTo: view.centerYAnchor)
+        ])
+    }
 }
 
 // MARK: - UITableViewDelegate & DataSource
 extension MovieListViewController: UITableViewDelegate, UITableViewDataSource, MovieCell.MovieCellDelegate {
     
     func movieCell(_ cell: MovieCell, didTapDetailButtonFor movieId: Int) {
-        print("=== Delegate Method Called ===")
-        print("MovieID received: \(movieId)")
-        print("NavigationController exists: \(navigationController != nil)")
+        // 根據 movieId 獲取對應的 movie 資料
+        let movie = viewModel.movie(at: tableView.indexPath(for: cell)?.row ?? 0)
         
         DispatchQueue.main.async { [weak self] in
-            let detailViewModel = MovieDetailViewModel(movieId: movieId)
+            // 建立 ViewModel 時傳入電影名稱
+            let detailViewModel = MovieDetailViewModel(movieId: movieId, movieTitle: movie.title)
             let detailVC = MovieDetailViewController(viewModel: detailViewModel)
-            print("DetailVC created with movieId: \(movieId)")
-            
             self?.navigationController?.pushViewController(detailVC, animated: true)
-            
-            if self?.navigationController == nil {
-                print("!!! Navigation controller is nil !!!")
-            } else {
-                print("Navigation controller is available")
-            }
         }
     }
+    
+//    func movieCell(_ cell: MovieCell, didTapDetailButtonFor movieId: Int) {
+//        print("=== Delegate Method Called ===")
+//        print("MovieID received: \(movieId)")
+//        print("NavigationController exists: \(navigationController != nil)")
+//        
+//        DispatchQueue.main.async { [weak self] in
+//            let detailViewModel = MovieDetailViewModel(movieId: movieId)
+//            let detailVC = MovieDetailViewController(viewModel: detailViewModel)
+//            print("DetailVC created with movieId: \(movieId)")
+//            
+//            self?.navigationController?.pushViewController(detailVC, animated: true)
+//            
+//            if self?.navigationController == nil {
+//                print("!!! Navigation controller is nil !!!")
+//            } else {
+//                print("Navigation controller is available")
+//            }
+//        }
+//    }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell

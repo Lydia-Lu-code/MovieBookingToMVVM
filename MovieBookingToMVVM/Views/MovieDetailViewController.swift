@@ -245,12 +245,22 @@ class MovieDetailViewController: UIViewController {
     }
     
 
-    // 在原始 MovieDetailViewController.swift 中
-    @objc internal func showTimesButtonTapped() {  // 改為 internal
-//        let testVC = SeatLayoutViewController()
-        let testVC = ShowtimeSelectionViewController()
-        navigationController?.pushViewController(testVC, animated: true)
+    @objc internal func showTimesButtonTapped() {
+        let movieTitle = viewModel.getMovieTitle()
+        print("MovieDetail - 傳送電影名稱: \(movieTitle)")
+        
+        let showtimeViewModel = ShowtimeSelectionViewModel(movieTitle: movieTitle)
+        let showtimeVC = ShowtimeSelectionViewController(viewModel: showtimeViewModel)
+        navigationController?.pushViewController(showtimeVC, animated: true)
     }
+
+    
+//    @objc internal func showTimesButtonTapped() {  // 改為 internal
+////        let testVC = SeatLayoutViewController()
+//        let showtimeVC = ShowtimeSelectionViewController()
+//        showtimeVC.title = viewModel.getMovieTitle()
+//        navigationController?.pushViewController(showtimeVC, animated: true)
+//    }
     
     func configure(with movieId: Int) {
         viewModel = MovieDetailViewModel(movieId: movieId)

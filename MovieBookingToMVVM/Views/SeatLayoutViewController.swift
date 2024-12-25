@@ -123,6 +123,7 @@ class SeatLayoutViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         setupLayout()
         createSeatingLayout()
         setupInfoSection()
@@ -154,32 +155,39 @@ class SeatLayoutViewController: UIViewController {
     
     // 結帳按鈕點擊事件
     @objc private func checkoutButtonTapped() {
-        guard !viewModel.selectedSeats.isEmpty else {
-            AlertHelper.showAlert(in: self, message: "請先選擇座位")
-            return
-        }
-        
-        let bookingData = prepareBookingData()
-        
-        googleDriveViewModel.uploadBookingData(bookingData: bookingData) { [weak self] result in
-            guard let self = self else { return }
-            
-            switch result {
-            case .success:
-                AlertHelper.showAlert(
-                    in: self,
-                    title: "訂票成功",
-                    message: "您的訂票已成功儲存"
-                )
-            case .failure(let error):
-                AlertHelper.showAlert(
-                    in: self,
-                    title: "訂票失敗",
-                    message: error.localizedDescription
-                )
-            }
-        }
+        updateCheckoutButtonTapped()  // 只使用新方法
     }
+    
+//    @objc private func checkoutButtonTapped() {
+//        guard !viewModel.selectedSeats.isEmpty else {
+//            AlertHelper.showAlert(in: self, message: "請先選擇座位")
+//            return
+//        }
+//        
+//        let bookingData = prepareBookingData()
+//        
+//        uploadToSheetDB(bookingData: bookingData)
+//        
+//        googleDriveViewModel.uploadBookingData(bookingData: bookingData) { [weak self] result in
+//            guard let self = self else { return }
+//            
+//            switch result {
+//            case .success:
+//                AlertHelper.showAlert(
+//                    in: self,
+//                    title: "訂票成功",
+//                    message: "您的訂票已成功儲存"
+//                )
+//            case .failure(let error):
+//                AlertHelper.showAlert(
+//                    in: self,
+//                    title: "訂票失敗",
+//                    message: error.localizedDescription
+//                )
+//            }
+//        }
+//        updateCheckoutButtonTapped()
+//    }
     
     // 準備訂單資料
     private func prepareBookingData() -> BookingData {
@@ -236,45 +244,74 @@ class SeatLayoutViewController: UIViewController {
     
     // 座位點選事件
     @objc private func seatTapped(_ sender: UIButton) {
-        if selectedButtons.contains(sender) {
-            selectedButtons.remove(sender)
-            sender.backgroundColor = .systemGray5
-        } else {
-            selectedButtons.insert(sender)
-            sender.backgroundColor = .systemGreen
-        }
-        
         let row = sender.tag / seatsPerRow
         let column = sender.tag % seatsPerRow
+        
+        // 只通過 ViewModel 來管理狀態
         viewModel.toggleSeat(at: row, column: column)
         
-        updateSelectionInfo()
+        // 根據 ViewModel 的狀態更新 UI
+        updateButtonAppearance(sender, isSelected: viewModel.isSeatSelected(row: row, column: column))
     }
+
+    private func updateButtonAppearance(_ button: UIButton, isSelected: Bool) {
+        button.backgroundColor = isSelected ? .systemGreen : .systemGray5
+    }
+    
+//    @objc private func seatTapped(_ sender: UIButton) {
+//        if selectedButtons.contains(sender) {
+//            selectedButtons.remove(sender)
+//            sender.backgroundColor = .systemGray5
+//        } else {
+//            selectedButtons.insert(sender)
+//            sender.backgroundColor = .systemGreen
+//        }
+//        
+//        let row = sender.tag / seatsPerRow
+//        let column = sender.tag % seatsPerRow
+//        viewModel.toggleSeat(at: row, column: column)
+//        
+//        updateSelectionInfo()
+//    }
     
     // 更新座位選擇資訊
     private func updateSelectionInfo() {
-        let sortedSeats = selectedButtons.sorted { $0.tag < $1.tag }
-        let seatLabels = sortedSeats.map { button -> String in
-            let row = button.tag / seatsPerRow
-            let seat = button.tag % seatsPerRow + 1
-            let rowLabel = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(row))!)
-            return "\(rowLabel)\(seat)"
-        }
-        
-        let greenButtonsCount = selectedButtons.filter { $0.backgroundColor == .systemGreen }.count
-        
+        let selectedCount = viewModel.selectedSeatsCount
         let currentTicketPrice = (ticketTypeSegment.selectedSegmentIndex == 0) ? 280 : 400
         
-        if seatLabels.isEmpty {
+        if selectedCount == 0 {
             selectedSeatsLabel.text = "已選座位：尚未選擇"
             totalPriceLabel.text = "總金額：$0"
         } else {
-            selectedSeatsLabel.text = "已選座位：" + seatLabels.joined(separator: "、")
-            
-            let totalPrice = greenButtonsCount * currentTicketPrice
+            selectedSeatsLabel.text = viewModel.getSelectedSeatsText()
+            let totalPrice = selectedCount * currentTicketPrice
             totalPriceLabel.text = "總金額：$\(totalPrice)"
         }
     }
+    
+//    private func updateSelectionInfo() {
+//        let sortedSeats = selectedButtons.sorted { $0.tag < $1.tag }
+//        let seatLabels = sortedSeats.map { button -> String in
+//            let row = button.tag / seatsPerRow
+//            let seat = button.tag % seatsPerRow + 1
+//            let rowLabel = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(row))!)
+//            return "\(rowLabel)\(seat)"
+//        }
+//        
+//        let greenButtonsCount = selectedButtons.filter { $0.backgroundColor == .systemGreen }.count
+//        
+//        let currentTicketPrice = (ticketTypeSegment.selectedSegmentIndex == 0) ? 280 : 400
+//        
+//        if seatLabels.isEmpty {
+//            selectedSeatsLabel.text = "已選座位：尚未選擇"
+//            totalPriceLabel.text = "總金額：$0"
+//        } else {
+//            selectedSeatsLabel.text = "已選座位：" + seatLabels.joined(separator: "、")
+//            
+//            let totalPrice = greenButtonsCount * currentTicketPrice
+//            totalPriceLabel.text = "總金額：$\(totalPrice)"
+//        }
+//    }
     
     // 更新座位資訊
     private func updateSeatsInfo() {
@@ -427,3 +464,243 @@ class SeatLayoutViewController: UIViewController {
             }
         }
 
+// MARK: - Booking Data Manager
+extension SeatLayoutViewController {
+    
+    /// 訂票資料管理器
+    class BookingDataManager {
+        static let shared = BookingDataManager()
+        
+        private init() {}
+        
+        var movieName: String = ""
+        var showDate: Date?
+        var showTime: String = ""
+    }
+    
+    /// 設定電影和場次資訊
+    func setMovieAndShowtime(movieName: String, showDate: Date, showTime: String) {
+        print("SeatLayout - 接收訂票資料")
+        print("電影名稱: \(movieName)")
+        print("場次日期: \(showDate)")
+        print("場次時間: \(showTime)")
+        
+        let manager = BookingDataManager.shared
+        manager.movieName = movieName
+        manager.showDate = showDate
+        manager.showTime = showTime
+    }
+    
+//    func setMovieAndShowtime(
+//        movieName: String,
+//        showDate: Date,
+//        showTime: String
+//    ) {
+//        let manager = BookingDataManager.shared
+//        manager.movieName = movieName
+//        manager.showDate = showDate
+//        manager.showTime = showTime
+//    }
+    
+    /// 更新訂票資料準備方法
+    func prepareBookingDataWithDetails() -> BookingData {
+        let selectedSeats = viewModel.getSelectedSeats()
+        let seatLabels = selectedSeats.map { seat in
+            let rowLabel = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(seat.row))!)
+            return "\(rowLabel)\(seat.column + 1)"
+        }
+        
+        let manager = BookingDataManager.shared
+        
+        return BookingData(
+            movieName: manager.movieName,
+            showDate: manager.showDate ?? Date(),
+            showTime: manager.showTime,
+            peopleCount: selectedSeats.count,
+            ticketType: viewModel.getTicketTypeText(),
+            notes: seatLabels.joined(separator: "、")
+        )
+    }
+}
+
+// MARK: - Booking Data Setup Extension
+extension SeatLayoutViewController {
+    /// 在 viewDidLoad 中調用
+    func setupBookingData(movieName: String, showDate: Date, showTime: String) {
+        setMovieAndShowtime(
+            movieName: movieName,
+            showDate: showDate,
+            showTime: showTime
+        )
+    }
+    
+    /// 修改 checkoutButtonTapped 使用新的準備方法
+    @objc private func updateCheckoutButtonTapped() {
+        guard !viewModel.selectedSeats.isEmpty else {
+            AlertHelper.showAlert(in: self, message: "請先選擇座位")
+            return
+        }
+        
+        let bookingData = prepareBookingDataWithDetails()
+        uploadToSheetDB(bookingData: bookingData)
+        
+        googleDriveViewModel.uploadBookingData(bookingData: bookingData) { [weak self] result in
+            guard let self = self else { return }
+            
+            switch result {
+            case .success:
+                AlertHelper.showAlert(
+                    in: self,
+                    title: "訂票成功",
+                    message: "您的訂票已成功儲存"
+                )
+            case .failure(let error):
+                AlertHelper.showAlert(
+                    in: self,
+                    title: "訂票失敗",
+                    message: error.localizedDescription
+                )
+            }
+        }
+    }
+    
+
+}
+
+
+
+extension SeatLayoutViewController {
+    
+    /// SheetDB API 設定
+    private struct SheetDBConfig {
+        static let apiUrl = "https://sheetdb.io/api/v1/gwog7qdzdkusm"
+        static let sheetName = "訂票紀錄"
+    }
+    
+    /// 上傳到 SheetDB
+    func uploadToSheetDB(bookingData: BookingData) {
+        print("準備上傳資料:")
+        print("電影名稱: \(bookingData.movieName)")
+        print("場次日期: \(bookingData.showDate)")
+        print("場次時間: \(bookingData.showTime)")
+        
+        // 1. 驗證 API URL
+        guard let url = URL(string: SheetDBConfig.apiUrl) else {
+            print("❌ SheetDB API URL 無效：\(SheetDBConfig.apiUrl)")
+            showErrorAlert(message: "無效的 API URL")
+            return
+        }
+        
+        // 2. 準備上傳資料
+        let dateFormatter = DateFormatter()
+        dateFormatter.dateFormat = "yyyy/MM/dd"
+        
+        let uploadData: [String: Any] = [
+            "訂票日期": dateFormatter.string(from: Date()),
+            "電影名稱": bookingData.movieName,
+            "場次日期": dateFormatter.string(from: bookingData.showDate),
+            "場次時間": bookingData.showTime,
+            "人數": bookingData.peopleCount,
+            "票種": bookingData.ticketType,
+            "座位": bookingData.notes,
+            "總金額": calculateTotalAmount(ticketType: bookingData.ticketType, peopleCount: bookingData.peopleCount)
+        ]
+        
+        print("📤 準備上傳資料：\(uploadData)")
+        
+        // 3. 建立請求
+        var request = URLRequest(url: url)
+        request.httpMethod = "POST"
+        request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+        
+        let body = ["data": [uploadData]]
+        
+        do {
+            let jsonData = try JSONSerialization.data(withJSONObject: body)
+            request.httpBody = jsonData
+            print("📝 請求內容：\(String(data: jsonData, encoding: .utf8) ?? "無法讀取")")
+        } catch {
+            print("❌ JSON 序列化失敗：\(error)")
+            showErrorAlert(message: "資料序列化失敗：\(error.localizedDescription)")
+            return
+        }
+        
+        // 4. 顯示載入指示器
+        let loadingIndicator = createLoadingIndicator()
+        
+        // 5. 執行請求
+        print("🚀 開始上傳到 SheetDB...")
+        
+        URLSession.shared.dataTask(with: request) { [weak self] data, response, error in
+            DispatchQueue.main.async {
+                loadingIndicator.removeFromSuperview()
+                
+                if let error = error {
+                    print("❌ 網路請求失敗：\(error)")
+                    self?.showErrorAlert(message: "上傳失敗：\(error.localizedDescription)")
+                    return
+                }
+                
+                // 6. 處理回應
+                if let httpResponse = response as? HTTPURLResponse {
+                    print("📡 服務器回應狀態碼：\(httpResponse.statusCode)")
+                    
+                    if let responseData = data,
+                       let responseString = String(data: responseData, encoding: .utf8) {
+                        print("📥 服務器回應內容：\(responseString)")
+                    }
+                    
+                    if (200...299).contains(httpResponse.statusCode) {
+                        print("✅ 上傳成功")
+                        self?.handleUploadSuccess()
+                    } else {
+                        print("❌ 服務器錯誤：\(httpResponse.statusCode)")
+                        self?.showErrorAlert(message: "服務器回應錯誤：\(httpResponse.statusCode)")
+                    }
+                } else {
+                    print("❌ 無效的服務器回應")
+                    self?.showErrorAlert(message: "無效的服務器回應")
+                }
+            }
+        }.resume()
+    }
+    
+    
+    /// 建立載入指示器
+    private func createLoadingIndicator() -> UIActivityIndicatorView {
+        let indicator = UIActivityIndicatorView(style: .large)
+        indicator.center = view.center
+        indicator.startAnimating()
+        view.addSubview(indicator)
+        return indicator
+    }
+    
+    /// 處理上傳成功
+    private func handleUploadSuccess() {
+        AlertHelper.showAlert(
+            in: self,
+            title: "上傳成功",
+            message: "訂票資料已成功儲存至 Excel"
+        ) { [weak self] in
+            self?.resetSeatSelection()
+            self?.navigationController?.popViewController(animated: true)
+        }
+    }
+    
+    /// 顯示錯誤提示
+    private func showErrorAlert(message: String) {
+        AlertHelper.showAlert(
+            in: self,
+            title: "上傳失敗",
+            message: message
+        )
+    }
+    
+    /// 計算總金額
+    private func calculateTotalAmount(ticketType: String, peopleCount: Int) -> Int {
+        let basePrice = 280
+        let packageExtra = 120
+        let isPackage = ticketType == "套餐票"
+        return peopleCount * (basePrice + (isPackage ? packageExtra : 0))
+    }
+}

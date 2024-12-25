@@ -8,6 +8,8 @@
 import Foundation
 
 class ShowtimeSelectionViewModel {
+    let movieTitle: String
+    
     // MARK: - Properties
     private let calendar = Calendar.current
     private(set) var selectedDate: Date?
@@ -15,6 +17,10 @@ class ShowtimeSelectionViewModel {
     
     var showtimes: [ShowtimeModel] = []
     var showAlert: (() -> Void)?
+    
+    init(movieTitle: String) {
+        self.movieTitle = movieTitle
+    }
     
     // MARK: - Outputs
     var updateShowtimes: (([ShowtimeModel]) -> Void)?

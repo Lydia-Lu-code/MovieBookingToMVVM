@@ -37,6 +37,9 @@ protocol SeatLayoutViewModelProtocol {
     func getTotalPrice() -> String
     func getTicketTypeText() -> String
     func clearSelectedSeats()
+    
+    func isSeatSelected(row: Int, column: Int) -> Bool
+    var selectedSeatsCount: Int { get }
 }
 
 // 座位版面配置協議
@@ -47,6 +50,15 @@ protocol SeatLayoutConfigurationProtocol {
 }
 
 class SeatLayoutViewModel: SeatLayoutViewModelProtocol {
+    
+    func isSeatSelected(row: Int, column: Int) -> Bool {
+        return selectedSeats.contains { $0.row == row && $0.column == column }
+    }
+    
+    var selectedSeatsCount: Int {
+        return selectedSeats.count
+    }
+    
     // 配置
     private let configuration: SeatLayoutConfigurationProtocol
     
@@ -103,22 +115,42 @@ class SeatLayoutViewModel: SeatLayoutViewModelProtocol {
     func toggleSeat(at row: Int, column: Int) {
         guard isValidSeatPosition(row: row, column: column) else { return }
         
-        var seat = seats[row][column]
+        // 檢查當前狀態
+        let isCurrentlySelected = selectedSeats.contains { $0.row == row && $0.column == column }
         
-        switch seat.status {
-        case .available:
-            seat.status = .selected
-            selectedSeats.append(seat)
-        case .selected:
-            seat.status = .available
+        if isCurrentlySelected {
+            // 移除座位
             selectedSeats.removeAll { $0.row == row && $0.column == column }
-        case .occupied:
-            return
+        } else {
+            // 添加座位
+            let newSeat = SeatLayout(row: row, column: column, status: .selected)
+            selectedSeats.append(newSeat)
         }
         
-        seats[row][column] = seat
-        updateSeatStatus?(row, column, seat.status)
+        // 通知 UI 更新
+        updateSelectedSeatsInfo?()
+        updateTotalPrice?()
     }
+    
+//    func toggleSeat(at row: Int, column: Int) {
+//        guard isValidSeatPosition(row: row, column: column) else { return }
+//        
+//        var seat = seats[row][column]
+//        
+//        switch seat.status {
+//        case .available:
+//            seat.status = .selected
+//            selectedSeats.append(seat)
+//        case .selected:
+//            seat.status = .available
+//            selectedSeats.removeAll { $0.row == row && $0.column == column }
+//        case .occupied:
+//            return
+//        }
+//        
+//        seats[row][column] = seat
+//        updateSeatStatus?(row, column, seat.status)
+//    }
     
     // 切換票種
     func toggleTicketType() {
