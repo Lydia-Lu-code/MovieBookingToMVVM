@@ -255,13 +255,6 @@ class MovieDetailViewController: UIViewController {
     }
 
     
-//    @objc internal func showTimesButtonTapped() {  // 改為 internal
-////        let testVC = SeatLayoutViewController()
-//        let showtimeVC = ShowtimeSelectionViewController()
-//        showtimeVC.title = viewModel.getMovieTitle()
-//        navigationController?.pushViewController(showtimeVC, animated: true)
-//    }
-    
     func configure(with movieId: Int) {
         viewModel = MovieDetailViewModel(movieId: movieId)
     }

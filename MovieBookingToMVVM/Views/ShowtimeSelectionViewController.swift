@@ -71,18 +71,6 @@ class ShowtimeSelectionViewController: UIViewController {
        return button
    }()
    
-//   // MARK: - Initialization
-//   init(viewModel: ShowtimeSelectionViewModel = ShowtimeSelectionViewModel()) {
-//       self.viewModel = viewModel
-//       self.movieTitle = movieTitle
-//       super.init(nibName: nil, bundle: nil)
-//   }
-//   
-//   required init?(coder: NSCoder) {
-//       self.viewModel = ShowtimeSelectionViewModel()
-//       self.movieTitle = "預設電影名稱"
-//       super.init(coder: coder)
-//   }
    
    // MARK: - Lifecycle
    override func viewDidLoad() {
@@ -170,37 +158,6 @@ class ShowtimeSelectionViewController: UIViewController {
             navigationController?.pushViewController(seatVC, animated: true)
         }
     }
-    
-//    @objc private func selectSeatButtonTapped() {
-//        if viewModel.canProceedToSeatSelection() {
-//            let seatVC = SeatLayoutViewController()
-//            
-//            // 從 viewModel 取得選擇的日期和時間
-//            if let selectedDate = viewModel.selectedDate,
-//               let selectedShowtime = viewModel.selectedShowtime {
-//                print("ShowtimeSelection - 傳送資料到座位頁面")
-//                print("電影名稱: \(viewModel.movieTitle)")  // 使用 viewModel 中的電影名稱
-//
-//                
-//                // 設定訂票資訊
-//                seatVC.setupBookingData(
-////                    movieName: title ?? "預設電影名稱", // 從 navigation title 取得電影名稱
-//                    movieName: viewModel.movieTitle,
-//                    showDate: selectedDate,
-//                    showTime: selectedShowtime.time
-//                )
-//            }
-//            
-//            navigationController?.pushViewController(seatVC, animated: true)
-//        }
-//    }
-    
-//    @objc private func selectSeatButtonTapped() {
-//        if viewModel.canProceedToSeatSelection() {
-//            let seatVC = SeatLayoutViewController()
-//            navigationController?.pushViewController(seatVC, animated: true)
-//        }
-//    }
     
     // 新增提醒方法
     private func showTimeSelectionAlert() {

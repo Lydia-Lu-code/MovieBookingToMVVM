@@ -116,25 +116,6 @@ extension MovieListViewController: UITableViewDelegate, UITableViewDataSource, M
         }
     }
     
-//    func movieCell(_ cell: MovieCell, didTapDetailButtonFor movieId: Int) {
-//        print("=== Delegate Method Called ===")
-//        print("MovieID received: \(movieId)")
-//        print("NavigationController exists: \(navigationController != nil)")
-//        
-//        DispatchQueue.main.async { [weak self] in
-//            let detailViewModel = MovieDetailViewModel(movieId: movieId)
-//            let detailVC = MovieDetailViewController(viewModel: detailViewModel)
-//            print("DetailVC created with movieId: \(movieId)")
-//            
-//            self?.navigationController?.pushViewController(detailVC, animated: true)
-//            
-//            if self?.navigationController == nil {
-//                print("!!! Navigation controller is nil !!!")
-//            } else {
-//                print("Navigation controller is available")
-//            }
-//        }
-//    }
 
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "MovieCell", for: indexPath) as! MovieCell

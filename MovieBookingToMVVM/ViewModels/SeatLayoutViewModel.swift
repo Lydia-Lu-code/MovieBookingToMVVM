@@ -132,25 +132,6 @@ class SeatLayoutViewModel: SeatLayoutViewModelProtocol {
         updateTotalPrice?()
     }
     
-//    func toggleSeat(at row: Int, column: Int) {
-//        guard isValidSeatPosition(row: row, column: column) else { return }
-//        
-//        var seat = seats[row][column]
-//        
-//        switch seat.status {
-//        case .available:
-//            seat.status = .selected
-//            selectedSeats.append(seat)
-//        case .selected:
-//            seat.status = .available
-//            selectedSeats.removeAll { $0.row == row && $0.column == column }
-//        case .occupied:
-//            return
-//        }
-//        
-//        seats[row][column] = seat
-//        updateSeatStatus?(row, column, seat.status)
-//    }
     
     // 切換票種
     func toggleTicketType() {

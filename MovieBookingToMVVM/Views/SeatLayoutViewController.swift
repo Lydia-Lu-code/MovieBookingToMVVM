@@ -158,36 +158,6 @@ class SeatLayoutViewController: UIViewController {
         updateCheckoutButtonTapped()  // 只使用新方法
     }
     
-//    @objc private func checkoutButtonTapped() {
-//        guard !viewModel.selectedSeats.isEmpty else {
-//            AlertHelper.showAlert(in: self, message: "請先選擇座位")
-//            return
-//        }
-//        
-//        let bookingData = prepareBookingData()
-//        
-//        uploadToSheetDB(bookingData: bookingData)
-//        
-//        googleDriveViewModel.uploadBookingData(bookingData: bookingData) { [weak self] result in
-//            guard let self = self else { return }
-//            
-//            switch result {
-//            case .success:
-//                AlertHelper.showAlert(
-//                    in: self,
-//                    title: "訂票成功",
-//                    message: "您的訂票已成功儲存"
-//                )
-//            case .failure(let error):
-//                AlertHelper.showAlert(
-//                    in: self,
-//                    title: "訂票失敗",
-//                    message: error.localizedDescription
-//                )
-//            }
-//        }
-//        updateCheckoutButtonTapped()
-//    }
     
     // 準備訂單資料
     private func prepareBookingData() -> BookingData {
@@ -258,21 +228,6 @@ class SeatLayoutViewController: UIViewController {
         button.backgroundColor = isSelected ? .systemGreen : .systemGray5
     }
     
-//    @objc private func seatTapped(_ sender: UIButton) {
-//        if selectedButtons.contains(sender) {
-//            selectedButtons.remove(sender)
-//            sender.backgroundColor = .systemGray5
-//        } else {
-//            selectedButtons.insert(sender)
-//            sender.backgroundColor = .systemGreen
-//        }
-//        
-//        let row = sender.tag / seatsPerRow
-//        let column = sender.tag % seatsPerRow
-//        viewModel.toggleSeat(at: row, column: column)
-//        
-//        updateSelectionInfo()
-//    }
     
     // 更新座位選擇資訊
     private func updateSelectionInfo() {
@@ -289,29 +244,6 @@ class SeatLayoutViewController: UIViewController {
         }
     }
     
-//    private func updateSelectionInfo() {
-//        let sortedSeats = selectedButtons.sorted { $0.tag < $1.tag }
-//        let seatLabels = sortedSeats.map { button -> String in
-//            let row = button.tag / seatsPerRow
-//            let seat = button.tag % seatsPerRow + 1
-//            let rowLabel = String(UnicodeScalar("A".unicodeScalars.first!.value + UInt32(row))!)
-//            return "\(rowLabel)\(seat)"
-//        }
-//        
-//        let greenButtonsCount = selectedButtons.filter { $0.backgroundColor == .systemGreen }.count
-//        
-//        let currentTicketPrice = (ticketTypeSegment.selectedSegmentIndex == 0) ? 280 : 400
-//        
-//        if seatLabels.isEmpty {
-//            selectedSeatsLabel.text = "已選座位：尚未選擇"
-//            totalPriceLabel.text = "總金額：$0"
-//        } else {
-//            selectedSeatsLabel.text = "已選座位：" + seatLabels.joined(separator: "、")
-//            
-//            let totalPrice = greenButtonsCount * currentTicketPrice
-//            totalPriceLabel.text = "總金額：$\(totalPrice)"
-//        }
-//    }
     
     // 更新座位資訊
     private func updateSeatsInfo() {
@@ -491,16 +423,6 @@ extension SeatLayoutViewController {
         manager.showTime = showTime
     }
     
-//    func setMovieAndShowtime(
-//        movieName: String,
-//        showDate: Date,
-//        showTime: String
-//    ) {
-//        let manager = BookingDataManager.shared
-//        manager.movieName = movieName
-//        manager.showDate = showDate
-//        manager.showTime = showTime
-//    }
     
     /// 更新訂票資料準備方法
     func prepareBookingDataWithDetails() -> BookingData {
