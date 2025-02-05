@@ -1,9 +1,3 @@
-//
-//  MovieDetailViewController.swift
-//  MovieBookingToMVVM
-//
-//  Created by Lydia Lu on 2024/12/13.
-//
 
 import UIKit
 
@@ -226,7 +220,7 @@ class MovieDetailViewController: UIViewController {
     private func loadImage(from path: String) {
         let baseURL = "https://image.tmdb.org/t/p/w500"
         guard let url = URL(string: baseURL + path) else { return }
-        
+
         URLSession.shared.dataTask(with: url) { [weak self] data, _, _ in
             if let data = data, let image = UIImage(data: data) {
                 DispatchQueue.main.async {
@@ -235,30 +229,28 @@ class MovieDetailViewController: UIViewController {
             }
         }.resume()
     }
-    
+
     private func showError(message: String) {
         activityIndicator.stopAnimating()
-        
+
         let alert = UIAlertController(title: "錯誤", message: message, preferredStyle: .alert)
         alert.addAction(UIAlertAction(title: "確定", style: .default))
         present(alert, animated: true)
     }
-    
+
 
     @objc internal func showTimesButtonTapped() {
         let movieTitle = viewModel.getMovieTitle()
         print("MovieDetail - 傳送電影名稱: \(movieTitle)")
-        
+
         let showtimeViewModel = ShowtimeSelectionViewModel(movieTitle: movieTitle)
         let showtimeVC = ShowtimeSelectionViewController(viewModel: showtimeViewModel)
         navigationController?.pushViewController(showtimeVC, animated: true)
     }
 
-    
+
     func configure(with movieId: Int) {
         viewModel = MovieDetailViewModel(movieId: movieId)
     }
 
 }
-
-

@@ -110,6 +110,7 @@ extension MovieListViewController: UITableViewDelegate, UITableViewDataSource, M
         
         DispatchQueue.main.async { [weak self] in
             // 建立 ViewModel 時傳入電影名稱
+//            let detailViewModel = MovieDetailViewModel(movieId: movieId, movieTitle: movie.title)
             let detailViewModel = MovieDetailViewModel(movieId: movieId, movieTitle: movie.title)
             let detailVC = MovieDetailViewController(viewModel: detailViewModel)
             self?.navigationController?.pushViewController(detailVC, animated: true)

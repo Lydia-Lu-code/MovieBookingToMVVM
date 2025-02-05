@@ -1,10 +1,3 @@
-//
-//  MovieDetailViewModel.swift
-//  MovieBookingToMVVM
-//
-//  Created by Lydia Lu on 2024/12/13.
-//
-
 import Foundation
 
 class MovieDetailViewModel {
@@ -39,6 +32,6 @@ class MovieDetailViewModel {
     func getMovieTitle() -> String {
         return movieTitle ?? "預設電影名稱"
     }
+    
+ 
 }
-
-

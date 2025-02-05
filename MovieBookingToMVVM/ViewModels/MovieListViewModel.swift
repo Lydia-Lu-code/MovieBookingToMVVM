@@ -1,9 +1,4 @@
-//
-//  ViewModels.swift
-//  MovieBookingToMVVM
-//
-//  Created by Lydia Lu on 2024/12/13.
-//
+
 
 import Foundation
 
